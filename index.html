@@ -163,7 +163,7 @@
   <!-- Big directional banner -->
   <div class="heading-banner">
     <span class="arrow">&#8593;</span>
-    <span class="word">West</span>
+    <span class="word">Map West</span>
   </div>
 
   <!-- Map -->
@@ -212,10 +212,21 @@
   }
 
   function handleOrientation(e) {
-    if (e.alpha === null) { noticeEl.textContent = 'No compass data available.'; return; }
-    // Disc rotation and displayed cardinal both derive from the same heading
-    // so the readout always matches the physical compass face.
-    const heading = e.alpha;
+    // Prefer a true magnetic heading when the device provides one.
+    // iOS exposes webkitCompassHeading (0 = true north, increases clockwise).
+    // Plain `alpha` is often relative — it treats whatever direction the
+    // device faced at sensor start as 0 — so we only fall back to it.
+    let heading;
+    if (typeof e.webkitCompassHeading === 'number') {
+      heading = e.webkitCompassHeading;
+    } else if (e.alpha !== null) {
+      // alpha increases counter-clockwise, so convert to a clockwise heading.
+      heading = (360 - e.alpha) % 360;
+    } else {
+      noticeEl.textContent = 'No compass data available.';
+      return;
+    }
+    // Disc rotates so its N points at true north; readout matches the face.
     disc.style.transform = `rotate(${-heading}deg)`;
     cardinalEl.textContent = toCardinal(heading);
     noticeEl.textContent   = 'Hold device flat for best accuracy.';
@@ -227,7 +238,12 @@
       noticeEl.className = 'error';
       return;
     }
-    window.addEventListener('deviceorientation', handleOrientation, true);
+    // Android Chrome provides an absolute (true-north) heading via this event.
+    if ('ondeviceorientationabsolute' in window) {
+      window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+    } else {
+      window.addEventListener('deviceorientation', handleOrientation, true);
+    }
   }
 
   function requestIOSPermission() {
