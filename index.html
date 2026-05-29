@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
     font-family: system-ui, sans-serif;
     background: #f5f5f5;
@@ -18,32 +19,45 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: 0.75rem;
-    gap: 0.75rem;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  /* Big directional banner */
+  .heading-banner {
+    background: #1b5e20;
+    color: #fff;
+    border-radius: 14px;
+    padding: 1.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .heading-banner .arrow {
+    font-size: 4rem;
+    line-height: 1;
+    font-weight: 700;
+  }
+  .heading-banner .word {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
   }
 
   /* Map image */
   .img-section {
     background: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid #ddd;
     padding: 0.75rem;
-  }
-  .img-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #222;
-    margin-bottom: 8px;
   }
   .img-section img {
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   /* Compass */
@@ -51,22 +65,24 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 18px;
     background: #fff;
     border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1.25rem;
+    border-radius: 12px;
+    padding: 1.75rem 1rem;
   }
   .compass-wrap {
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 300px;
+    height: 300px;
+    max-width: 90vw;
+    max-height: 90vw;
   }
   .ring {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    border: 2px solid #ddd;
+    border: 3px solid #ccc;
     position: absolute;
     background: #fafafa;
   }
@@ -86,44 +102,48 @@
     justify-content: center;
     pointer-events: none;
   }
+  .needle svg { width: 45px; height: 150px; }
   .dot {
     position: absolute;
     top: 50%; left: 50%;
-    width: 10px; height: 10px;
+    width: 14px; height: 14px;
     background: #333;
     border-radius: 50%;
     transform: translate(-50%, -50%);
   }
   .cardinal-display {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 3rem;
+    font-weight: 800;
     color: #111;
     letter-spacing: 0.05em;
     background: #f0f0f0;
-    border-radius: 8px;
-    padding: 6px 28px;
+    border-radius: 12px;
+    padding: 10px 40px;
+    min-width: 140px;
+    text-align: center;
   }
   #notice {
-    font-size: 0.72rem;
-    color: #aaa;
+    font-size: 1rem;
+    color: #888;
     text-align: center;
   }
   #notice.error { color: #e04040; }
   #permitBtn {
-    font-size: 0.8rem;
-    padding: 8px 20px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    background: #fff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding: 16px 36px;
+    border: 2px solid #1b5e20;
+    border-radius: 30px;
+    background: #1b5e20;
+    color: #fff;
     cursor: pointer;
     display: none;
-    color: #333;
   }
 
   /* QR image */
   .qr-section {
     background: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid #ddd;
     padding: 0.75rem;
     display: flex;
@@ -131,18 +151,23 @@
   }
   .qr-section img {
     width: 100%;
-    max-width: 300px;
+    max-width: 260px;
     height: auto;
     display: block;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 </style>
 </head>
 <body>
 
+  <!-- Big directional banner -->
+  <div class="heading-banner">
+    <span class="arrow">&#8593;</span>
+    <span class="word">West</span>
+  </div>
+
   <!-- Map -->
   <div class="img-section">
-    <div class="img-label">↑ West</div>
     <img src="https://drive.google.com/thumbnail?id=1TzqLOuaK0nFdZsCEl3dDIJHV6jhB7Hev&sz=w1200" alt="Map" />
   </div>
 
@@ -152,14 +177,14 @@
       <div class="ring"></div>
       <div class="disc" id="disc">
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <text x="100" y="26" text-anchor="middle" fill="#e04040" font-family="system-ui" font-size="22" font-weight="700">N</text>
-          <text x="100" y="194" text-anchor="middle" fill="#666" font-family="system-ui" font-size="20" font-weight="600">S</text>
-          <text x="188" y="106" text-anchor="middle" fill="#666" font-family="system-ui" font-size="20" font-weight="600">E</text>
-          <text x="12" y="106" text-anchor="middle" fill="#666" font-family="system-ui" font-size="20" font-weight="600">W</text>
+          <text x="100" y="34" text-anchor="middle" fill="#e04040" font-family="system-ui" font-size="32" font-weight="800">N</text>
+          <text x="100" y="190" text-anchor="middle" fill="#444" font-family="system-ui" font-size="28" font-weight="700">S</text>
+          <text x="180" y="111" text-anchor="middle" fill="#444" font-family="system-ui" font-size="28" font-weight="700">E</text>
+          <text x="20" y="111" text-anchor="middle" fill="#444" font-family="system-ui" font-size="28" font-weight="700">W</text>
         </svg>
       </div>
       <div class="needle">
-        <svg width="30" height="100" viewBox="0 0 30 100">
+        <svg viewBox="0 0 30 100">
           <polygon points="15,4 21,50 15,44 9,50" fill="#e04040"/>
           <polygon points="15,96 21,50 15,56 9,50" fill="#ccc"/>
         </svg>
@@ -167,7 +192,7 @@
       <div class="dot"></div>
     </div>
     <div class="cardinal-display" id="cardinal">--</div>
-    <div id="notice">Waiting for sensor…</div>
+    <div id="notice">Waiting for sensor&hellip;</div>
     <button id="permitBtn" onclick="requestIOSPermission()">Enable Compass</button>
   </div>
 
@@ -188,8 +213,10 @@
 
   function handleOrientation(e) {
     if (e.alpha === null) { noticeEl.textContent = 'No compass data available.'; return; }
-    const heading = (360 - e.alpha) % 360;
-    disc.style.transform = `rotate(${-e.alpha}deg)`;
+    // Disc rotation and displayed cardinal both derive from the same heading
+    // so the readout always matches the physical compass face.
+    const heading = e.alpha;
+    disc.style.transform = `rotate(${-heading}deg)`;
     cardinalEl.textContent = toCardinal(heading);
     noticeEl.textContent   = 'Hold device flat for best accuracy.';
   }
