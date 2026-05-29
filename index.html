@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,6 @@
 <title>Compass</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     font-family: system-ui, sans-serif;
     background: #f5f5f5;
@@ -14,55 +14,56 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 1rem;
-    gap: 2rem;
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
   }
-
-  /* ── Google Doc embed ── */
-  .doc-wrap {
+  .img-section {
     width: 100%;
-    max-width: 740px;
+    max-width: 500px;
     background: #fff;
     border-radius: 8px;
     border: 1px solid #ddd;
     overflow: hidden;
+    padding: 1rem;
   }
-  .doc-wrap iframe {
+  .img-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .img-label .arrow {
+    font-size: 1.1rem;
+  }
+  .img-section img {
     width: 100%;
-    height: 600px;
-    border: none;
+    height: auto;
     display: block;
+    border-radius: 4px;
   }
-
-  /* ── Compass ── */
   .compass-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 2rem;
+    padding: 1.5rem;
     width: 100%;
-    max-width: 740px;
+    max-width: 500px;
   }
-
-  .compass-title {
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #aaa;
-  }
-
   .compass-wrap {
     position: relative;
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
   }
   .ring {
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     border: 2px solid #ddd;
     position: absolute;
@@ -92,26 +93,17 @@
     border-radius: 50%;
     transform: translate(-50%, -50%);
   }
-
   .heading {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: #111;
     letter-spacing: -1px;
     line-height: 1;
   }
   .cardinal {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #888;
   }
-  .data-row {
-    display: flex;
-    gap: 24px;
-    font-size: 0.78rem;
-    color: #aaa;
-  }
-  .data-row span b { color: #555; font-weight: 600; }
-
   #notice {
     font-size: 0.72rem;
     color: #aaa;
@@ -119,7 +111,6 @@
     max-width: 220px;
   }
   #notice.error { color: #e04040; }
-
   #permitBtn {
     font-size: 0.8rem;
     padding: 8px 20px;
@@ -134,15 +125,15 @@
 </head>
 <body>
 
-  <!-- Live Google Doc -->
-  <div class="doc-wrap">
-    <iframe src="https://docs.google.com/document/d/e/2PACX-1vSJ3QT_Xg7yFw26C2GZHPlZ3CdIo8epJNcDDamYIVT1tGPbbQEr_nDmpoPe0sNMiTXC3CNk-Y-x0PFA/pub?embedded=true"></iframe>
+  <div class="img-section">
+    <div class="img-label">
+      <span class="arrow">↑</span>
+      <span>West</span>
+    </div>
+    <img src="https://drive.google.com/thumbnail?id=1TzqLOuaK0nFdZsCEl3dDIJHV6jhB7Hev&sz=w1200" alt="Map" />
   </div>
 
-  <!-- Compass -->
   <div class="compass-section">
-    <div class="compass-title">Compass</div>
-
     <div class="compass-wrap">
       <div class="ring"></div>
       <div class="disc" id="disc">
@@ -161,25 +152,16 @@
       </div>
       <div class="dot"></div>
     </div>
-
     <div class="heading" id="direction">--°</div>
     <div class="cardinal" id="cardinal">--</div>
-
-    <div class="data-row">
-      <span>β <b id="tiltFB">--°</b></span>
-      <span>γ <b id="tiltLR">--°</b></span>
-    </div>
-
     <div id="notice">Waiting for sensor…</div>
     <button id="permitBtn" onclick="requestIOSPermission()">Enable Compass</button>
   </div>
 
 <script>
-  const disc     = document.getElementById('disc');
-  const dirEl    = document.getElementById('direction');
-  const tiltFBEl = document.getElementById('tiltFB');
-  const tiltLREl = document.getElementById('tiltLR');
-  const noticeEl = document.getElementById('notice');
+  const disc       = document.getElementById('disc');
+  const dirEl      = document.getElementById('direction');
+  const noticeEl   = document.getElementById('notice');
   const cardinalEl = document.getElementById('cardinal');
   const permitBtn  = document.getElementById('permitBtn');
 
@@ -191,11 +173,9 @@
     if (e.alpha === null) { noticeEl.textContent = 'No compass data available.'; return; }
     const heading = (360 - e.alpha) % 360;
     disc.style.transform = `rotate(${-e.alpha}deg)`;
-    dirEl.textContent    = Math.round(heading) + '°';
+    dirEl.textContent      = Math.round(heading) + '°';
     cardinalEl.textContent = toCardinal(heading);
-    tiltFBEl.textContent = (e.beta  !== null ? Math.round(e.beta)  : '--') + '°';
-    tiltLREl.textContent = (e.gamma !== null ? Math.round(e.gamma) : '--') + '°';
-    noticeEl.textContent = 'Hold device flat for best accuracy.';
+    noticeEl.textContent   = 'Hold device flat for best accuracy.';
   }
 
   function startListening() {
