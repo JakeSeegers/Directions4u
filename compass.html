@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compass</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: system-ui, sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    gap: 2rem;
+  }
+
+  /* ── Google Doc embed ── */
+  .doc-wrap {
+    width: 100%;
+    max-width: 740px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    overflow: hidden;
+  }
+  .doc-wrap iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+  }
+
+  /* ── Compass ── */
+  .compass-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 740px;
+  }
+
+  .compass-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #aaa;
+  }
+
+  .compass-wrap {
+    position: relative;
+    width: 160px;
+    height: 160px;
+  }
+  .ring {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    position: absolute;
+    background: #fafafa;
+  }
+  .disc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    transition: transform 0.12s ease-out;
+    will-change: transform;
+  }
+  .disc svg { width: 100%; height: 100%; }
+  .needle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .dot {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 8px; height: 8px;
+    background: #333;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .heading {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .cardinal {
+    font-size: 1.1rem;
+    color: #888;
+  }
+  .data-row {
+    display: flex;
+    gap: 24px;
+    font-size: 0.78rem;
+    color: #aaa;
+  }
+  .data-row span b { color: #555; font-weight: 600; }
+
+  #notice {
+    font-size: 0.72rem;
+    color: #aaa;
+    text-align: center;
+    max-width: 220px;
+  }
+  #notice.error { color: #e04040; }
+
+  #permitBtn {
+    font-size: 0.8rem;
+    padding: 8px 20px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background: #fff;
+    cursor: pointer;
+    display: none;
+    color: #333;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Live Google Doc -->
+  <div class="doc-wrap">
+    <iframe src="https://docs.google.com/document/d/e/2PACX-1vSJ3QT_Xg7yFw26C2GZHPlZ3CdIo8epJNcDDamYIVT1tGPbbQEr_nDmpoPe0sNMiTXC3CNk-Y-x0PFA/pub?embedded=true"></iframe>
+  </div>
+
+  <!-- Compass -->
+  <div class="compass-section">
+    <div class="compass-title">Compass</div>
+
+    <div class="compass-wrap">
+      <div class="ring"></div>
+      <div class="disc" id="disc">
+        <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+          <text x="80" y="22" text-anchor="middle" fill="#e04040" font-family="system-ui" font-size="14" font-weight="700">N</text>
+          <text x="80" y="153" text-anchor="middle" fill="#aaa" font-family="system-ui" font-size="12">S</text>
+          <text x="152" y="85" text-anchor="middle" fill="#aaa" font-family="system-ui" font-size="12">E</text>
+          <text x="8" y="85" text-anchor="middle" fill="#aaa" font-family="system-ui" font-size="12">W</text>
+        </svg>
+      </div>
+      <div class="needle">
+        <svg width="24" height="80" viewBox="0 0 24 80">
+          <polygon points="12,4 17,40 12,36 7,40" fill="#e04040"/>
+          <polygon points="12,76 17,40 12,44 7,40" fill="#ccc"/>
+        </svg>
+      </div>
+      <div class="dot"></div>
+    </div>
+
+    <div class="heading" id="direction">--°</div>
+    <div class="cardinal" id="cardinal">--</div>
+
+    <div class="data-row">
+      <span>β <b id="tiltFB">--°</b></span>
+      <span>γ <b id="tiltLR">--°</b></span>
+    </div>
+
+    <div id="notice">Waiting for sensor…</div>
+    <button id="permitBtn" onclick="requestIOSPermission()">Enable Compass</button>
+  </div>
+
+<script>
+  const disc     = document.getElementById('disc');
+  const dirEl    = document.getElementById('direction');
+  const tiltFBEl = document.getElementById('tiltFB');
+  const tiltLREl = document.getElementById('tiltLR');
+  const noticeEl = document.getElementById('notice');
+  const cardinalEl = document.getElementById('cardinal');
+  const permitBtn  = document.getElementById('permitBtn');
+
+  function toCardinal(d) {
+    return ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(d / 22.5) % 16];
+  }
+
+  function handleOrientation(e) {
+    if (e.alpha === null) { noticeEl.textContent = 'No compass data available.'; return; }
+    const heading = (360 - e.alpha) % 360;
+    disc.style.transform = `rotate(${-e.alpha}deg)`;
+    dirEl.textContent    = Math.round(heading) + '°';
+    cardinalEl.textContent = toCardinal(heading);
+    tiltFBEl.textContent = (e.beta  !== null ? Math.round(e.beta)  : '--') + '°';
+    tiltLREl.textContent = (e.gamma !== null ? Math.round(e.gamma) : '--') + '°';
+    noticeEl.textContent = 'Hold device flat for best accuracy.';
+  }
+
+  function startListening() {
+    if (!window.DeviceOrientationEvent) {
+      noticeEl.textContent = 'Not supported by this browser.';
+      noticeEl.className = 'error';
+      return;
+    }
+    window.addEventListener('deviceorientation', handleOrientation, true);
+  }
+
+  function requestIOSPermission() {
+    DeviceOrientationEvent.requestPermission()
+      .then(state => {
+        if (state === 'granted') { permitBtn.style.display = 'none'; startListening(); }
+        else { noticeEl.textContent = 'Permission denied.'; noticeEl.className = 'error'; }
+      })
+      .catch(err => { noticeEl.textContent = err.message; noticeEl.className = 'error'; });
+  }
+
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    noticeEl.textContent = 'Tap to enable the compass.';
+    permitBtn.style.display = 'inline-block';
+  } else {
+    startListening();
+  }
+</script>
+</body>
+</html>
